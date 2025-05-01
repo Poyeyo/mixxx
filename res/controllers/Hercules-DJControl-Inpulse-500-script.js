@@ -1148,11 +1148,16 @@ DJCi500.crossfader = function(channel, control, value, status, group) {
             } else if (value >= 127) {
                 result = 1;
             } else {
-                result = Math.tan((value-64)*Math.PI/2/63)/32;
+                // The parameter k determines how sharp is the curve shape
+                // lower values will give gentler curves
+                let k = 0.975;
+                let scaled = k * Math.PI / 2 * script.absoluteLin(value, -1, 1, 0, 127);
+                result = Math.tan(scaled) / Math.tan(k * Math.PI /2);
+                result = (result + 1) / 2;
             }
-            engine.setValue(group, "crossfader", result);
+            engine.setParameter(group, "crossfader", result);
         } else {
-            engine.setValue(group, "crossfader", ((value*2)/127)-1);
+            engine.setParameter(group, "crossfader", script.absoluteLin(value, 0, 1, 0, 127));
         }
     }
 };
